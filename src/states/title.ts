@@ -52,8 +52,8 @@ export default class Title extends Phaser.State {
             availableSFX.Laser9
         ];
 
-        this._paddleLeft = this.drawPaddle(120, this.game.world.centerY, 10, 120);
-        this._paddleRight = this.drawPaddle(this.game.world.width - 120, this.game.world.centerY, 10, 120);
+        this._paddleLeft = this.drawPaddle(120, this.game.world.centerY, 10, 80);
+        this._paddleRight = this.drawPaddle(this.game.world.width - 120, this.game.world.centerY, 10, 80);
         this.Ball = this.drawBall();
     }
 

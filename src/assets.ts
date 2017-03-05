@@ -88,6 +88,7 @@ export namespace Audiosprites {
 
 export namespace GoogleWebFonts {
     export const Barrio: string = 'Barrio';
+    export const PressStart2P: string = 'Press Start 2P';
 }
 
 export namespace CustomWebFonts {

@@ -17,6 +17,7 @@ export default class Pong extends PongBaseState {
     private _scoreBoardRight: Phaser.Text;
     private _scoreLeft: number = 0;
     private _scoreRight: number = 0;
+    private _ballReturnCount: number = 0;
 
 
     private _pongProperties: any = {
@@ -27,6 +28,8 @@ export default class Pong extends PongBaseState {
         paddleSegmentAngle: 15,
 
         ballVelocity: 500,
+        ballVelocityIncrease: 25,
+        ballVelocityMaxValue: 4
     };
 
     private _currrentBallVelocity: number;
@@ -128,6 +131,7 @@ export default class Pong extends PongBaseState {
         this._currrentBallVelocity = -this._pongProperties.ballVelocity;
     }
     private collideWithPaddle(ball, paddle): void {
+        this.log('ball velocity: ' + this._currrentBallVelocity);
         let returnAngle;
         let segmentHit = Math.floor((ball.y - paddle.y) / this._pongProperties.paddleSegmentHeight);
         this.log('segment hit #: ' + segmentHit);
@@ -144,6 +148,12 @@ export default class Pong extends PongBaseState {
             }
             this.log('right paddle return angle: ' + returnAngle);
             this.game.physics.arcade.velocityFromAngle(returnAngle, Math.abs(this._currrentBallVelocity), this._ball.body.velocity);
+        }
+        this._ballReturnCount++;
+        this.log('ball count: ' + this._ballReturnCount);
+        if (this._ballReturnCount === this._pongProperties.ballVelocityMaxValue) {
+            this._ballReturnCount = 0;
+            this._currrentBallVelocity = Math.abs(this._currrentBallVelocity) + this._pongProperties.ballVelocityIncrease;
         }
     }
 

@@ -29,10 +29,10 @@ module.exports = {
             'GIT_REVISION': JSON.stringify(new GitRevisionPlugin().commithash()),
 
             // Do not modify these manually, you may break things...
-            'DEFAULT_GAME_WIDTH': /*[[DEFAULT_GAME_WIDTH*/1024/*DEFAULT_GAME_WIDTH]]*/,
-            'DEFAULT_GAME_HEIGHT': /*[[DEFAULT_GAME_HEIGHT*/640/*DEFAULT_GAME_HEIGHT]]*/,
-            'MAX_GAME_WIDTH': /*[[MAX_GAME_WIDTH*/1136/*MAX_GAME_WIDTH]]*/,
-            'MAX_GAME_HEIGHT': /*[[MAX_GAME_HEIGHT*/768/*MAX_GAME_HEIGHT]]*/,
+            'DEFAULT_GAME_WIDTH': /*[[DEFAULT_GAME_WIDTH*/800/*DEFAULT_GAME_WIDTH]]*/,
+            'DEFAULT_GAME_HEIGHT': /*[[DEFAULT_GAME_HEIGHT*/500/*DEFAULT_GAME_HEIGHT]]*/,
+            'MAX_GAME_WIDTH': /*[[MAX_GAME_WIDTH*/888/*MAX_GAME_WIDTH]]*/,
+            'MAX_GAME_HEIGHT': /*[[MAX_GAME_HEIGHT*/600/*MAX_GAME_HEIGHT]]*/,
             'SCALE_MODE': JSON.stringify(/*[[SCALE_MODE*/'USER_SCALE'/*SCALE_MODE]]*/),
 
             // The items below most likely the ones you should be modifying
@@ -64,13 +64,12 @@ module.exports = {
         }
     },
     module: {
-        noParse: [
-            /phaser-ce/
-        ],
         rules: [
             { test: /assets(\/|\\)/, loader: 'file-loader?name=assets/[hash].[ext]' },
-            { test: /\.ts$/, enforce: 'pre', loader: 'tslint-loader' },
-            { test: /\.ts$/, loader: 'ts-loader' }
+            { test: /pixi\.js$/, loader: 'expose-loader?PIXI' },
+            { test: /phaser-split\.js$/, loader: 'expose-loader?Phaser' },
+            { test: /p2\.js$/, loader: 'expose-loader?p2' },
+            { test: /\.ts$/, loader: 'ts-loader', exclude: '/node_modules/' }
         ]
     },
     devtool: '#source-map'

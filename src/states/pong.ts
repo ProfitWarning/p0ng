@@ -34,7 +34,7 @@ export default class Pong extends PongBaseState {
 
     private _currrentBallVelocity: number;
 
-    public preload(): void {
+    public create(): void {
         this.backgroundTemplateSprite = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, Assets.Images.ImagesBackgroundTemplate.getName());
         this.backgroundTemplateSprite.anchor.setTo(0.5);
 
@@ -52,9 +52,6 @@ export default class Pong extends PongBaseState {
             font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
             fill: '#ffffff'
         });
-    }
-
-    public create(): void {
         // this.game.camera.flash(0x000000, 500);
         this.backgroundTemplateSprite.inputEnabled = true;
         this.initGraphics();

@@ -17,6 +17,22 @@ export class Loader {
         }
     }
 
+    private static loadSpritesheets() {
+        for (let spritesheet in Assets.Spritesheets) {
+            if (!this.game.cache.checkImageKey(Assets.Spritesheets[spritesheet].getName())) {
+                let imageOption = null;
+
+                for (let option in Assets.Spritesheets[spritesheet]) {
+                    if (option !== 'getName' && option !== 'getFrameWidth' && option !== 'getFrameHeight' && option !== 'getFrameMax' && option !== 'getMargin' && option !== 'getSpacing') {
+                        imageOption = option;
+                    }
+                }
+
+                this.game.load.spritesheet(Assets.Spritesheets[spritesheet].getName(), Assets.Spritesheets[spritesheet][imageOption](), Assets.Spritesheets[spritesheet].getFrameWidth(), Assets.Spritesheets[spritesheet].getFrameHeight(), Assets.Spritesheets[spritesheet].getFrameMax(), Assets.Spritesheets[spritesheet].getMargin(), Assets.Spritesheets[spritesheet].getSpacing());
+            }
+        }
+    }
+
     private static loadAtlases() {
         for (let atlas in Assets.Atlases) {
             if (!this.game.cache.checkImageKey(Assets.Atlases[atlas].getName())) {
@@ -127,7 +143,7 @@ export class Loader {
 
     private static loadXML() {
         for (let xml in Assets.XML) {
-            if (!this.game.cache.checkJSONKey(Assets.XML[xml].getName())) {
+            if (!this.game.cache.checkXMLKey(Assets.XML[xml].getName())) {
                 this.game.load.xml(Assets.XML[xml].getName(), Assets.XML[xml].getXML(), true);
             }
         }
@@ -135,8 +151,22 @@ export class Loader {
 
     private static loadText() {
         for (let text in Assets.Text) {
-            if (!this.game.cache.checkJSONKey(Assets.Text[text].getName())) {
+            if (!this.game.cache.checkTextKey(Assets.Text[text].getName())) {
                 this.game.load.xml(Assets.Text[text].getName(), Assets.Text[text].getText(), true);
+            }
+        }
+    }
+
+    private static loadScripts() {
+        for (let script in Assets.Scripts) {
+            this.game.load.script(Assets.Scripts[script].getName(), Assets.Scripts[script].getJS());
+        }
+    }
+
+    private static loadShaders() {
+        for (let shader in Assets.Shaders) {
+            if (!this.game.cache.checkShaderKey(Assets.Shaders[shader].getName())) {
+                this.game.load.shader(Assets.Shaders[shader].getName(), Assets.Shaders[shader].getFRAG(), true);
             }
         }
     }
@@ -149,6 +179,7 @@ export class Loader {
         }
 
         this.loadImages();
+        this.loadSpritesheets();
         this.loadAtlases();
         this.loadAudio();
         this.loadAudiosprites();
@@ -156,6 +187,8 @@ export class Loader {
         this.loadJSON();
         this.loadXML();
         this.loadText();
+        this.loadScripts();
+        this.loadShaders();
     }
 
     public static waitForSoundDecoding(onComplete: Function, onCompleteContext?: any) {

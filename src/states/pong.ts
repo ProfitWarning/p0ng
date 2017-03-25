@@ -44,12 +44,12 @@ export default class Pong extends PongBaseState {
         });
 
         this._scoreBoardLeft = this.game.add.text(170, 100, this._scoreLeft.toString(), {
-            font: '8em ' + Assets.GoogleWebFonts.PressStart2P,
+            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
             fill: '#ffffff'
         });
 
         this._scoreBoardRight = this.game.add.text(this.game.world.width - 170, 100, this._scoreLeft.toString(), {
-            font: '8em ' + Assets.GoogleWebFonts.PressStart2P,
+            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
             fill: '#ffffff'
         });
     }

@@ -19,3 +19,5 @@ builds
 # Compiled
 builds/
 dist/
+
+assets.ts

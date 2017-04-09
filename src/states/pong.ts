@@ -1,9 +1,10 @@
 import * as Assets from '../assets';
 import PongBaseState from './PongBaseState';
+import { PongGameProperties } from '../interfaces/pong-properties';
 
 export default class Pong extends PongBaseState {
-    private backgroundTemplateSprite: Phaser.Sprite = null;
-    private headline: Phaser.Text = null;
+    private _backgroundTemplateSprite: Phaser.Sprite = null;
+    private _headline: Phaser.Text = null;
     private sfxAudiosprite: Phaser.AudioSprite = null;
     private _paddleLeft: Phaser.Sprite = null;
     private _paddleRight: Phaser.Sprite = null;
@@ -20,7 +21,7 @@ export default class Pong extends PongBaseState {
     private _ballReturnCount: number = 0;
 
 
-    private _pongProperties: any = {
+    private _pongProperties: PongGameProperties = {
         debug: false,
         paddleSpeed: 500,
         paddleSegmentsMax: 4,
@@ -28,35 +29,17 @@ export default class Pong extends PongBaseState {
         paddleSegmentAngle: 15,
 
         ballVelocity: 500,
-        ballVelocityIncrease: 25,
+        ballVelocityIncrease: 50,
         ballVelocityMaxValue: 4
     };
 
     private _currrentBallVelocity: number;
 
     public create(): void {
-        this.backgroundTemplateSprite = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, Assets.Images.ImagesBackgroundTemplate.getName());
-        this.backgroundTemplateSprite.anchor.setTo(0.5);
-
-        this.headline = this.game.add.text(this.game.world.centerX, 30, 'Pong', {
-            font: '3em ' + Assets.GoogleWebFonts.PressStart2P,
-            fill: '#ffffff'
-        });
-
-        this._scoreBoardLeft = this.game.add.text(170, 100, this._scoreLeft.toString(), {
-            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
-            fill: '#ffffff'
-        });
-
-        this._scoreBoardRight = this.game.add.text(this.game.world.width - 170, 100, this._scoreLeft.toString(), {
-            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
-            fill: '#ffffff'
-        });
-        // this.game.camera.flash(0x000000, 500);
-        this.backgroundTemplateSprite.inputEnabled = true;
         this.initGraphics();
         this.initKeyboard();
         this.initPhysics();
+        this.startIdleMode();
     }
 
     public update(): void {
@@ -74,9 +57,85 @@ export default class Pong extends PongBaseState {
         }
     }
 
+    private startIdleMode(): void {
+        this.enablePaddles(false);
+        this._ball.body.velocity.setTo(0);
+
+        // start game via input
+        this.game.input.onDown.add(this.startGame, this);
+    }
+
+    private startGame(): void {
+        this.game.input.onDown.remove(this.startGame, this);
+
+        this.game.camera.flash(0x000000, 500);
+        this.camera.onFlashComplete.add(() => {
+            this.resetBall();
+            this.game.time.events.add(Phaser.Timer.SECOND * 1.98, () => {
+                this._headline.text = 'Go';
+            }, this);
+        }, this);
+
+        this.enablePaddles(true);
+        this.resetScores();
+        this._headline.text = 'Ready';
+    }
+
+    private resetScores(): void {
+        this._scoreBoardLeft.text = '0';
+        this._scoreLeft = 0;
+        this._scoreBoardRight.text = '0';
+        this._scoreRight = 0;
+    }
+
+    private enablePaddles(enabled: boolean): void {
+        this._paddleGroup.setAll('body.enable', enabled);
+
+        this._paddleRight_down.enabled = enabled;
+        this._paddleRight_up.enabled = enabled;
+
+        this._paddleLeft_down.enabled = enabled;
+        this._paddleLeft_up.enabled = enabled;
+
+    }
+
+    private resetBall(): void {
+        this._ball.reset(this.game.world.centerX, this.game.world.centerY);
+        this._ball.visible = true;
+
+        this.game.time.events.add(Phaser.Timer.SECOND * 2, this.startBall, this);
+    }
+
+    private startBall(): void {
+        this._currrentBallVelocity = this._pongProperties.ballVelocity;
+        this._ball.visible = true;
+        this._ballReturnCount = 0;
+
+        // calculate random  angle
+        let randomStartAngle = this.game.rnd.pick([-60, 60, 25, -25, -120, 120]);
+        this.game.physics.arcade.velocityFromAngle(randomStartAngle, this._currrentBallVelocity, this._ball.body.velocity);
+    }
+
     private initGraphics(): void {
-        this.headline.anchor.setTo(0.5);
+        this._backgroundTemplateSprite = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, Assets.Images.ImagesBackgroundTemplate.getName());
+        this._backgroundTemplateSprite.anchor.setTo(0.5);
+
+        this._headline = this.game.add.text(this.game.world.centerX, 30, 'Pong', {
+            font: '3em ' + Assets.GoogleWebFonts.PressStart2P,
+            fill: '#ffffff'
+        });
+        this._headline.anchor.setTo(0.5);
+
+        this._scoreBoardLeft = this.game.add.text(this.game.world.centerX - 130, 110, this._scoreLeft.toString(), {
+            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
+            fill: '#ffffff'
+        });
         this._scoreBoardLeft.anchor.setTo(0.5);
+
+        this._scoreBoardRight = this.game.add.text(this.game.world.centerX + 130, 110, this._scoreLeft.toString(), {
+            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
+            fill: '#ffffff'
+        });
         this._scoreBoardRight.anchor.setTo(0.5);
 
         this._paddleLeft = this.drawPaddle(120, this.game.world.centerY, 10, this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
@@ -105,11 +164,7 @@ export default class Pong extends PongBaseState {
         this._ball.body.collideWorldBounds = true;
         this._ball.body.immovable = true;
         this._ball.events.onOutOfBounds.add(this.onBallHittingWall, this);
-
         this._ball.body.bounce.setTo(1, 1);
-        this._ball.body.velocity.setTo(-this._pongProperties.ballVelocity, 30);
-        this._currrentBallVelocity = -this._pongProperties.ballVelocity;
-
     }
 
     private onBallHittingWall(): void {
@@ -122,10 +177,7 @@ export default class Pong extends PongBaseState {
             this._scoreBoardLeft.text = this._scoreLeft.toString();
         }
 
-        this._ball.reset(this.game.world.centerX, this.game.world.centerY);
-        this._ball.body.bounce.setTo(1, 1);
-        this._ball.body.velocity.setTo(-this._pongProperties.ballVelocity, 30);
-        this._currrentBallVelocity = -this._pongProperties.ballVelocity;
+       this.resetBall();
     }
     private collideWithPaddle(ball, paddle): void {
         this.log('ball velocity: ' + this._currrentBallVelocity);
@@ -172,38 +224,10 @@ export default class Pong extends PongBaseState {
             this._paddleRight.body.velocity.setTo(0, 0);
         }
     }
-    private drawBall(x?: number, y?: number, r?: number): Phaser.Sprite {
-        let ballGraphic = this.game.add.graphics(0, 0);
-        let ballSprite: Phaser.Sprite = null;
-
-        ballGraphic.lineStyle(2, 0xFFFFFF, 1);
-        ballGraphic.beginFill(0xFFFFFF);
-        ballGraphic.drawCircle(this.game.world.centerX, this.game.world.centerY, r | 8);
-
-        ballSprite = this.game.add.sprite(x | this.game.world.centerX, y | this.game.world.centerY, ballGraphic.generateTexture());
-        ballSprite.anchor.set(0.5);
-
-        ballGraphic.destroy();
-
-        return ballSprite;
-    }
-    private drawPaddle(x: number, y: number, width: number, height: number): Phaser.Sprite {
-        let paddleGraphic = this.game.add.graphics(0, 0);
-        let paddleSprite: Phaser.Sprite = null;
-
-        paddleGraphic.lineStyle(0, 0xFFFFFF, 1);
-        paddleGraphic.beginFill(0xFFFFFF);
-        paddleGraphic.drawRect(50, 250, width, height);
-
-        paddleSprite = this.game.add.sprite(x, y, paddleGraphic.generateTexture());
-        paddleSprite.anchor.set(0.5);
-
-        paddleGraphic.destroy();
-
-        return paddleSprite;
-    }
 
     private initKeyboard(): void {
+        this._backgroundTemplateSprite.inputEnabled = true;
+
         this._paddleLeft_up = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
         this._paddleLeft_down = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
 

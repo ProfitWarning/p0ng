@@ -65,6 +65,7 @@ module.exports = {
     },
     module: {
         rules: [
+            { test: /\.ts$/, enforce: 'pre', loader: 'tslint-loader' },
             { test: /assets(\/|\\)/, loader: 'file-loader?name=assets/[hash].[ext]' },
             { test: /pixi\.js$/, loader: 'expose-loader?PIXI' },
             { test: /phaser-split\.js$/, loader: 'expose-loader?Phaser' },

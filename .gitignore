@@ -21,3 +21,5 @@ builds/
 dist/
 
 assets.ts
+*.bak
+*.orig

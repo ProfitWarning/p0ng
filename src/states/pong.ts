@@ -60,6 +60,7 @@ export default class Pong extends PongBaseState {
     private startIdleMode(): void {
         this.enablePaddles(false);
         this._ball.body.velocity.setTo(0);
+        this._headline.text = 'P0ng';
 
         // start game via input
         this.game.input.onDown.add(this.startGame, this);
@@ -68,13 +69,8 @@ export default class Pong extends PongBaseState {
     private startGame(): void {
         this.game.input.onDown.remove(this.startGame, this);
 
-        this.game.camera.flash(0x000000, 500);
-        this.camera.onFlashComplete.add(() => {
-            this.resetBall();
-            this.game.time.events.add(Phaser.Timer.SECOND * 1.98, () => {
-                this._headline.text = 'Go';
-            }, this);
-        }, this);
+        this.game.camera.flash(0x000000, 800);
+        this.camera.onFlashComplete.add(this.readySetGo, this);
 
         this.enablePaddles(true);
         this.resetScores();
@@ -116,11 +112,21 @@ export default class Pong extends PongBaseState {
         this.game.physics.arcade.velocityFromAngle(randomStartAngle, this._currrentBallVelocity, this._ball.body.velocity);
     }
 
+    private readySetGo(): void {
+        this.resetBall();
+        this.game.time.events.add(Phaser.Timer.SECOND * .80, () => {
+            this._headline.text = 'Set';
+            this.game.time.events.add(Phaser.Timer.SECOND * 1.20, () => {
+                this._headline.text = 'Go';
+            }, this);
+        }, this);
+    }
+
     private initGraphics(): void {
         this._backgroundTemplateSprite = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, Assets.Images.ImagesBackgroundTemplate.getName());
         this._backgroundTemplateSprite.anchor.setTo(0.5);
 
-        this._headline = this.game.add.text(this.game.world.centerX, 30, 'Pong', {
+        this._headline = this.game.add.text(this.game.world.centerX, 30, 'P0ng', {
             font: '3em ' + Assets.GoogleWebFonts.PressStart2P,
             fill: '#ffffff'
         });

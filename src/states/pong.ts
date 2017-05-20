@@ -58,7 +58,7 @@ export default class Pong extends PongBaseState {
     }
 
     private startIdleMode(): void {
-        this.enablePaddles(false);
+        this.setPaddlesActive(false);
         this._ball.body.velocity.setTo(0);
         this._headline.text = 'P0ng';
 
@@ -72,7 +72,7 @@ export default class Pong extends PongBaseState {
         this.game.camera.flash(0x000000, 800);
         this.camera.onFlashComplete.add(this.readySetGo, this);
 
-        this.enablePaddles(true);
+        this.setPaddlesActive(true);
         this.resetScores();
         this._headline.text = 'Ready';
     }
@@ -84,7 +84,7 @@ export default class Pong extends PongBaseState {
         this._scoreRight = 0;
     }
 
-    private enablePaddles(enabled: boolean): void {
+    private setPaddlesActive(enabled: boolean): void {
         this._paddleGroup.setAll('body.enable', enabled);
 
         this._paddleRight_down.enabled = enabled;

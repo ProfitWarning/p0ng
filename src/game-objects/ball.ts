@@ -11,6 +11,11 @@ export class Ball extends Phaser.Sprite {
         this.game.add.existing(this);
     }
 
+    public resetBall(): void {
+        this.reset(this.game.world.centerX, this.game.world.centerY);
+        this.visible = true;
+    }
+
     private drawBall(x?: number, y?: number, r: number = 8): PIXI.Texture {
         let texture: PIXI.RenderTexture;
         let ballGraphic = this.game.add.graphics(0, 0);

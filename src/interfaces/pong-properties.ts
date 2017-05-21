@@ -8,4 +8,6 @@ export interface PongGameProperties {
     ballVelocity: number;
     ballVelocityIncrease: number;
     ballVelocityMaxValue: number;
+
+    winningScore: number;
 }

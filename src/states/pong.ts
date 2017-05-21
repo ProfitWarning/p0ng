@@ -3,23 +3,22 @@ import PongBaseState from './PongBaseState';
 import { PongGameProperties } from '../interfaces/pong-properties';
 import { Paddle } from '../game-objects/paddle';
 import { Ball } from '../game-objects/ball';
-import { ScoreBoard } from '../game-objects/score-board';
+import { ScoreBoard, Score } from '../game-objects/score-board';
 import Player from '../game-objects/player';
 import { PlayerKeySet } from '../game-objects/player';
+import { Headline } from '../game-objects/headline';
 
 export default class Pong extends PongBaseState {
     private _backgroundTemplateSprite: Phaser.Sprite;
     private _headline: Phaser.Text;
     private sfxAudiosprite: Phaser.AudioSprite;
     private _paddleGroup: Phaser.Group;
-    private _ball: Phaser.Sprite;
-    private _scoreBoardLeft: Phaser.Text;
-    private _scoreBoardRight: Phaser.Text;
+    private _ball: Ball;
     private _ballReturnCount: number = 0;
-
     private _scoreBoard: ScoreBoard;
     private _leftPlayer: Player;
     private _rightPlayer: Player;
+    private _ballStartEvent: Phaser.TimerEvent;
 
 
     private _pongProperties: PongGameProperties = {
@@ -31,7 +30,9 @@ export default class Pong extends PongBaseState {
 
         ballVelocity: 500,
         ballVelocityIncrease: 50,
-        ballVelocityMaxValue: 4
+        ballVelocityMaxValue: 4,
+
+        winningScore: 5
     };
 
     private _currrentBallVelocity: number;
@@ -44,7 +45,7 @@ export default class Pong extends PongBaseState {
     }
 
     public update(): void {
-        this.onInputUpdate();
+        this.updateInputs();
         this.game.physics.arcade.collide(this._ball, this._paddleGroup, this.collideWithPaddle, undefined, this);
 
     }
@@ -59,9 +60,11 @@ export default class Pong extends PongBaseState {
     }
 
     private startIdleMode(): void {
+        this._ball.resetBall();
         this.setPaddlesActive(false);
         this._ball.body.velocity.setTo(0);
         this._headline.text = 'P0ng';
+        this._scoreBoard.resetScores();
 
         // start game via input
         this.game.input.onDown.add(this.startGame, this);
@@ -89,8 +92,7 @@ export default class Pong extends PongBaseState {
     }
 
     private resetBall(): void {
-        this._ball.reset(this.game.world.centerX, this.game.world.centerY);
-        this._ball.visible = true;
+        this._ball.resetBall();
 
         this.game.time.events.add(Phaser.Timer.SECOND * 2, this.startBall, this);
     }
@@ -119,13 +121,9 @@ export default class Pong extends PongBaseState {
         this._backgroundTemplateSprite = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, Assets.Images.ImagesBackgroundTemplate.getName());
         this._backgroundTemplateSprite.anchor.setTo(0.5);
 
-        this._headline = this.game.add.text(this.game.world.centerX, 30, 'P0ng', {
-            font: '3em ' + Assets.GoogleWebFonts.PressStart2P,
-            fill: '#ffffff'
-        });
-        this._headline.anchor.setTo(0.5);
-
+        this._headline = new Headline(this.game, this.game.world.centerX, 30, 'P0ng');
         this._scoreBoard = new ScoreBoard(this.game, 130, 110);
+        this._ball = new Ball(this.game);
 
         const paddleLeft = new Paddle(this.game,
             120, this.game.world.centerY,
@@ -138,10 +136,8 @@ export default class Pong extends PongBaseState {
             10,
             this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
 
-        this._ball = new Ball(this.game);
-
-         this._leftPlayer = new Player(this.game, paddleLeft, PlayerKeySet.LeftPlayer);
-         this._rightPlayer = new Player(this.game, paddleRight, PlayerKeySet.RightPlayer);
+        this._leftPlayer = new Player(this.game, paddleLeft, PlayerKeySet.LeftPlayer);
+        this._rightPlayer = new Player(this.game, paddleRight, PlayerKeySet.RightPlayer);
     }
 
     private initPhysics(): void {
@@ -176,8 +172,20 @@ export default class Pong extends PongBaseState {
             this._scoreBoard.increaseLeftScore();
         }
 
-        this.resetBall();
+        if (this._pongProperties.winningScore === this._scoreBoard.leftScore.score
+            || this._pongProperties.winningScore === this._scoreBoard.rightScore.score) {
+            this.playerWon();
+
+        } else {
+            this.resetBall();
+        }
     }
+
+    private playerWon() {
+        this.game.time.events.remove(this._ballStartEvent);
+        this.startIdleMode();
+    }
+
     private collideWithPaddle(ball: Ball, paddle: Paddle): void {
         this.log('ball velocity: ' + this._currrentBallVelocity);
         let returnAngle;
@@ -205,7 +213,7 @@ export default class Pong extends PongBaseState {
         }
     }
 
-    private onInputUpdate(): void {
+    private updateInputs(): void {
         let lp = this._leftPlayer;
         let rp = this._rightPlayer;
 
@@ -230,7 +238,7 @@ export default class Pong extends PongBaseState {
     private initKeyboard(): void {
         this._backgroundTemplateSprite.inputEnabled = true;
 
-       this._leftPlayer.initKeyboard();
-       this._rightPlayer.initKeyboard();
+        this._leftPlayer.initKeyboard();
+        this._rightPlayer.initKeyboard();
     }
 }

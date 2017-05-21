@@ -25,7 +25,7 @@ export class Score extends Phaser.Text {
     }
 
     public increaseScore(): void {
-        this.setScore(this.score++);
+        this.setScore(this.score + 1);
     }
 }
 

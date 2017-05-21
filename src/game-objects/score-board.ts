@@ -1,10 +1,8 @@
 import * as Assets from '../assets';
 
-export class ScoreBoard extends Phaser.Text {
+export class Score extends Phaser.Text {
     game: Phaser.Game;
     score: number;
-
-
 
     constructor(game: Phaser.Game, x: number, y: number, style?: Phaser.PhaserTextStyle) {
         const defaultTextStyle = {
@@ -16,5 +14,42 @@ export class ScoreBoard extends Phaser.Text {
         this.game = game;
         this.score = 0;
         this.text = this.score.toString();
+        this.anchor.setTo(0.5);
+
+        this.game.add.existing(this);
+    }
+
+    public setScore(score: number): void {
+        this.score = score;
+        this.text = this.score.toString();
+    }
+
+    public increaseScore(): void {
+        this.setScore(this.score++);
+    }
+}
+
+export class ScoreBoard {
+    game: Phaser.Game;
+    leftScore: Score;
+    rightScore: Score;
+
+    constructor(game: Phaser.Game, x: number, y: number, style?: Phaser.PhaserTextStyle) {
+        this.game = game;
+        this.leftScore = new Score(game, this.game.world.centerX - x, y, style);
+        this.rightScore = new Score(game, this.game.world.centerX + x, y, style);
+    }
+
+    public resetScores(): void {
+        this.leftScore.setScore(0);
+        this.rightScore.setScore(0);
+    }
+
+    public increaseLeftScore(): void {
+        this.leftScore.increaseScore();
+    }
+
+    public increaseRightScore(): void {
+        this.rightScore.increaseScore();
     }
 }

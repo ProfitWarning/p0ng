@@ -6,7 +6,7 @@ var WebpackShellPlugin = require('webpack-shell-plugin');
 
 module.exports = {
     entry: [
-        'core-js',
+
         path.join(__dirname, 'src/app.ts'),
         ],
     output: {

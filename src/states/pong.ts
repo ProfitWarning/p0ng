@@ -3,24 +3,23 @@ import PongBaseState from './PongBaseState';
 import { PongGameProperties } from '../interfaces/pong-properties';
 import { Paddle } from '../game-objects/paddle';
 import { Ball } from '../game-objects/ball';
+import { ScoreBoard } from '../game-objects/score-board';
+import Player from '../game-objects/player';
+import { PlayerKeySet } from '../game-objects/player';
 
 export default class Pong extends PongBaseState {
     private _backgroundTemplateSprite: Phaser.Sprite;
     private _headline: Phaser.Text;
     private sfxAudiosprite: Phaser.AudioSprite;
-    private _paddleLeft: Phaser.Sprite;
-    private _paddleRight: Phaser.Sprite;
     private _paddleGroup: Phaser.Group;
-    private _paddleRight_down: Phaser.Key;
-    private _paddleRight_up: Phaser.Key;
-    private _paddleLeft_down: Phaser.Key;
-    private _paddleLeft_up: Phaser.Key;
     private _ball: Phaser.Sprite;
     private _scoreBoardLeft: Phaser.Text;
     private _scoreBoardRight: Phaser.Text;
-    private _scoreLeft: number = 0;
-    private _scoreRight: number = 0;
     private _ballReturnCount: number = 0;
+
+    private _scoreBoard: ScoreBoard;
+    private _leftPlayer: Player;
+    private _rightPlayer: Player;
 
 
     private _pongProperties: PongGameProperties = {
@@ -46,15 +45,15 @@ export default class Pong extends PongBaseState {
 
     public update(): void {
         this.onInputUpdate();
-        this.game.physics.arcade.collide(this._ball, this._paddleGroup, this.collideWithPaddle, null, this);
+        this.game.physics.arcade.collide(this._ball, this._paddleGroup, this.collideWithPaddle, undefined, this);
 
     }
 
     public render(): void {
         this.game.debug.font = '9px Courier';
         if (this._pongProperties.debug) {
-            this.game.debug.spriteInfo(this._paddleLeft, 16, 100);
-            this.game.debug.spriteInfo(this._paddleRight, this.game.world.width - 230, 100);
+            this.game.debug.spriteInfo(this._leftPlayer.paddle, 16, 100);
+            this.game.debug.spriteInfo(this._rightPlayer.paddle, this.game.world.width - 230, 100);
             this.game.debug.spriteInfo(this._ball, this.game.world.centerX - 110, 100);
         }
     }
@@ -71,30 +70,22 @@ export default class Pong extends PongBaseState {
     private startGame(): void {
         this.game.input.onDown.remove(this.startGame, this);
 
-        this.game.camera.flash(0x000000, 800);
+        this.game.camera.flash(0x000000, 1200);
         this.camera.onFlashComplete.add(this.readySetGo, this);
 
         this.setPaddlesActive(true);
-        this.resetScores();
+        this._scoreBoard.resetScores();
         this._headline.text = 'Ready';
-    }
-
-    private resetScores(): void {
-        this._scoreBoardLeft.text = '0';
-        this._scoreLeft = 0;
-        this._scoreBoardRight.text = '0';
-        this._scoreRight = 0;
     }
 
     private setPaddlesActive(enabled: boolean): void {
         this._paddleGroup.setAll('body.enable', enabled);
 
-        this._paddleRight_down.enabled = enabled;
-        this._paddleRight_up.enabled = enabled;
+        this._leftPlayer.keyDown.enabled = enabled;
+        this._leftPlayer.keyUp.enabled = enabled;
 
-        this._paddleLeft_down.enabled = enabled;
-        this._paddleLeft_up.enabled = enabled;
-
+        this._rightPlayer.keyDown.enabled = enabled;
+        this._rightPlayer.keyUp.enabled = enabled;
     }
 
     private resetBall(): void {
@@ -134,21 +125,23 @@ export default class Pong extends PongBaseState {
         });
         this._headline.anchor.setTo(0.5);
 
-        this._scoreBoardLeft = this.game.add.text(this.game.world.centerX - 130, 110, this._scoreLeft.toString(), {
-            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
-            fill: '#ffffff'
-        });
-        this._scoreBoardLeft.anchor.setTo(0.5);
+        this._scoreBoard = new ScoreBoard(this.game, 130, 110);
 
-        this._scoreBoardRight = this.game.add.text(this.game.world.centerX + 130, 110, this._scoreLeft.toString(), {
-            font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
-            fill: '#ffffff'
-        });
-        this._scoreBoardRight.anchor.setTo(0.5);
+        const paddleLeft = new Paddle(this.game,
+            120, this.game.world.centerY,
+            10,
+            this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
 
-        this._paddleLeft = new Paddle(this.game, 120, this.game.world.centerY, 10, this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
-        this._paddleRight = new Paddle(this.game, this.game.world.width - 120, this.game.world.centerY, 10, this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
+        const paddleRight = new Paddle(this.game,
+            this.game.world.width - 120,
+            this.game.world.centerY,
+            10,
+            this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
+
         this._ball = new Ball(this.game);
+
+         this._leftPlayer = new Player(this.game, paddleLeft, PlayerKeySet.LeftPlayer);
+         this._rightPlayer = new Player(this.game, paddleRight, PlayerKeySet.RightPlayer);
     }
 
     private initPhysics(): void {
@@ -161,8 +154,8 @@ export default class Pong extends PongBaseState {
         this._paddleGroup.enableBody = true;
         this._paddleGroup.physicsBodyType = Phaser.Physics.ARCADE;
 
-        this._paddleGroup.add(this._paddleLeft);
-        this._paddleGroup.add(this._paddleRight);
+        this._paddleGroup.add(this._leftPlayer.paddle);
+        this._paddleGroup.add(this._rightPlayer.paddle);
 
         this._paddleGroup.setAll('checkWorldBounds', true);
         this._paddleGroup.setAll('body.collideWorldBounds', true);
@@ -177,17 +170,15 @@ export default class Pong extends PongBaseState {
 
     private onBallHittingWall(): void {
         if (this.isSpriteOnLeftSide(this._ball)) {
-            this._scoreRight++;
-            this._scoreBoardRight.text = this._scoreRight.toString();
+            this._scoreBoard.increaseRightScore();
         }
         else {
-            this._scoreLeft++;
-            this._scoreBoardLeft.text = this._scoreLeft.toString();
+            this._scoreBoard.increaseLeftScore();
         }
 
         this.resetBall();
     }
-    private collideWithPaddle(ball, paddle): void {
+    private collideWithPaddle(ball: Ball, paddle: Paddle): void {
         this.log('ball velocity: ' + this._currrentBallVelocity);
         let returnAngle;
         let segmentHit = Math.floor((ball.y - paddle.y) / this._pongProperties.paddleSegmentHeight);
@@ -215,31 +206,31 @@ export default class Pong extends PongBaseState {
     }
 
     private onInputUpdate(): void {
-        if (this._paddleLeft_up.isDown) {
-            this._paddleLeft.body.velocity.y = -this._pongProperties.paddleSpeed;
+        let lp = this._leftPlayer;
+        let rp = this._rightPlayer;
+
+        if (lp.keyUp.isDown) {
+            lp.paddle.body.velocity.y = -this._pongProperties.paddleSpeed;
         }
-        else if (this._paddleRight_up.isDown) {
-            this._paddleRight.body.velocity.y = -this._pongProperties.paddleSpeed;
+        else if (rp.keyUp.isDown) {
+            rp.paddle.body.velocity.y = -this._pongProperties.paddleSpeed;
         }
-        else if (this._paddleLeft_down.isDown) {
-            this._paddleLeft.body.velocity.y = this._pongProperties.paddleSpeed;
+        else if (lp.keyDown.isDown) {
+            lp.paddle.body.velocity.y = this._pongProperties.paddleSpeed;
         }
-        else if (this._paddleRight_down.isDown) {
-            this._paddleRight.body.velocity.y = this._pongProperties.paddleSpeed;
+        else if (rp.keyDown.isDown) {
+            rp.paddle.body.velocity.y = this._pongProperties.paddleSpeed;
         }
         else {
-            this._paddleLeft.body.velocity.setTo(0, 0);
-            this._paddleRight.body.velocity.setTo(0, 0);
+            rp.paddle.body.velocity.setTo(0, 0);
+            lp.paddle.body.velocity.setTo(0, 0);
         }
     }
 
     private initKeyboard(): void {
         this._backgroundTemplateSprite.inputEnabled = true;
 
-        this._paddleLeft_up = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
-        this._paddleLeft_down = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
-
-        this._paddleRight_up = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
-        this._paddleRight_down = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+       this._leftPlayer.initKeyboard();
+       this._rightPlayer.initKeyboard();
     }
 }

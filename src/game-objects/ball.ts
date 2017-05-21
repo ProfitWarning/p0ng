@@ -1,18 +1,19 @@
 export class Ball extends Phaser.Sprite {
     game: Phaser.Game;
 
-    constructor(game: Phaser.Game, x?: number, y?: number, r?: number) {
+    constructor(game: Phaser.Game, x: number = game.world.centerX, y: number = game.world.centerY, r?: number) {
         super(game, x, y);
 
         this.game = game;
         this.texture = this.drawBall(x, y, r);
         this.anchor.set(0.5);
+
+        this.game.add.existing(this);
     }
 
-    private drawBall(x?: number, y?: number, r?: number): PIXI.Texture {
-        let texture: PIXI.RenderTexture = null;
+    private drawBall(x?: number, y?: number, r: number = 8): PIXI.Texture {
+        let texture: PIXI.RenderTexture;
         let ballGraphic = this.game.add.graphics(0, 0);
-
         ballGraphic.lineStyle(2, 0xFFFFFF, 1);
         ballGraphic.beginFill(0xFFFFFF);
         ballGraphic.drawCircle(this.game.world.centerX, this.game.world.centerY, r | 8);

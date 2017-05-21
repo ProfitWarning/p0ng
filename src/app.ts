@@ -10,6 +10,8 @@ import Title from './states/title';
 import Pong from './states/pong';
 import * as Utils from './utils/utils';
 import * as Assets from './assets';
+import * as GameObjects from './game-objects/';
+
 
 class App extends Phaser.Game {
     constructor(config: Phaser.IGameConfig) {

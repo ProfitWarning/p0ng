@@ -1,19 +1,21 @@
 import * as Assets from '../assets';
 import PongBaseState from './PongBaseState';
 import { PongGameProperties } from '../interfaces/pong-properties';
+import { Paddle } from '../game-objects/paddle';
+import { Ball } from '../game-objects/ball';
 
 export default class Pong extends PongBaseState {
-    private _backgroundTemplateSprite: Phaser.Sprite = null;
-    private _headline: Phaser.Text = null;
-    private sfxAudiosprite: Phaser.AudioSprite = null;
-    private _paddleLeft: Phaser.Sprite = null;
-    private _paddleRight: Phaser.Sprite = null;
-    private _paddleGroup: Phaser.Group = null;
+    private _backgroundTemplateSprite: Phaser.Sprite;
+    private _headline: Phaser.Text;
+    private sfxAudiosprite: Phaser.AudioSprite;
+    private _paddleLeft: Phaser.Sprite;
+    private _paddleRight: Phaser.Sprite;
+    private _paddleGroup: Phaser.Group;
     private _paddleRight_down: Phaser.Key;
     private _paddleRight_up: Phaser.Key;
     private _paddleLeft_down: Phaser.Key;
     private _paddleLeft_up: Phaser.Key;
-    private _ball: Phaser.Sprite = null;
+    private _ball: Phaser.Sprite;
     private _scoreBoardLeft: Phaser.Text;
     private _scoreBoardRight: Phaser.Text;
     private _scoreLeft: number = 0;
@@ -144,9 +146,9 @@ export default class Pong extends PongBaseState {
         });
         this._scoreBoardRight.anchor.setTo(0.5);
 
-        this._paddleLeft = this.drawPaddle(120, this.game.world.centerY, 10, this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
-        this._paddleRight = this.drawPaddle(this.game.world.width - 120, this.game.world.centerY, 10, this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
-        this._ball = this.drawBall();
+        this._paddleLeft = new Paddle(this.game, 120, this.game.world.centerY, 10, this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
+        this._paddleRight = new Paddle(this.game, this.game.world.width - 120, this.game.world.centerY, 10, this._pongProperties.paddleSegmentsMax * 2 * this._pongProperties.paddleSegmentHeight);
+        this._ball = new Ball(this.game);
     }
 
     private initPhysics(): void {
@@ -178,12 +180,12 @@ export default class Pong extends PongBaseState {
             this._scoreRight++;
             this._scoreBoardRight.text = this._scoreRight.toString();
         }
-        else  {
+        else {
             this._scoreLeft++;
             this._scoreBoardLeft.text = this._scoreLeft.toString();
         }
 
-       this.resetBall();
+        this.resetBall();
     }
     private collideWithPaddle(ball, paddle): void {
         this.log('ball velocity: ' + this._currrentBallVelocity);

@@ -16,8 +16,8 @@ export class Ball extends Phaser.Sprite {
         this.visible = true;
     }
 
-    private drawBall(x?: number, y?: number, r: number = 8): PIXI.Texture {
-        let texture: PIXI.RenderTexture;
+    private drawBall(x?: number, y?: number, r: number = 8): Phaser.RenderTexture {
+        let texture: Phaser.RenderTexture;
         let ballGraphic = this.game.add.graphics(0, 0);
         ballGraphic.lineStyle(2, 0xFFFFFF, 1);
         ballGraphic.beginFill(0xFFFFFF);

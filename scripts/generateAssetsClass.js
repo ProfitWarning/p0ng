@@ -32,7 +32,7 @@ function toPascalCase(string) {
 
 function findExtension(haystack, arr) {
     return arr.some(function (v) {
-        return haystack.indexOf(v) >= 0;
+        return haystack.lastIndexOf(v) >= 0;
     });
 }
 
@@ -65,10 +65,12 @@ var scriptExtensions = ['js'];
 var shaderExtensions = ['frag'];
 
 shell.ls('assets/**/*.*').forEach(function (file) {
-    var filePath = file.replace('assets/', '').split('.');
+    var filePath = file.replace('assets/', '');
+    var fileName = filePath.substring(0, filePath.lastIndexOf('.'));
+    var extension = filePath.substr(filePath.lastIndexOf('.')+1);
 
-    gameAssets[filePath[0]] = gameAssets[filePath[0]] || [];
-    gameAssets[filePath[0]] = gameAssets[filePath[0]].concat(filePath.slice(1));
+    gameAssets[fileName] = gameAssets[fileName] || [];
+    gameAssets[fileName] = gameAssets[fileName].concat(extension);
 });
 
 for (var i in gameAssets) {
@@ -107,7 +109,7 @@ for (var i in gameAssets) {
         if (jsonType || xmlType) {
             loaderTypes.atlas[i] = gameAssets[i];
         } else {
-            var spritesheetData = gameAssets[i][0].match(/\[(-?[0-9],?)*]/);
+            var spritesheetData = i.match(/\[(-?[0-9],?)*]/);
             if (spritesheetData && spritesheetData.length > 0) {
                 loaderTypes.spritesheet[i] = gameAssets[i];
             } else {
@@ -161,9 +163,9 @@ if (!Object.keys(loaderTypes.spritesheet).length) {
         shell.ShellString('\n    export class ' + toPascalCase(i) + ' {').toEnd(assetsClassFile);
         shell.ShellString('\n        static getName(): string { return \'' + i.split('/').pop() + '\'; }\n').toEnd(assetsClassFile);
 
-        shell.ShellString('\n        static get' + loaderTypes.spritesheet[i][1].toUpperCase() + '(): string { return require(\'assets/' + i + '.' + loaderTypes.spritesheet[i][0] + '.' + loaderTypes.spritesheet[i][1] + '\'); }').toEnd(assetsClassFile);
+         shell.ShellString('\n        static get' + loaderTypes.spritesheet[i][0].toUpperCase() + '(): string { return require(\'assets/' + i + '.' + loaderTypes.spritesheet[i][0] + (loaderTypes.spritesheet[i][1] ? '.' + loaderTypes.spritesheet[i][1] : '') + '\'); }').toEnd(assetsClassFile);
 
-        var spritesheetProperties = loaderTypes.spritesheet[i][0].replace('[', '').replace(']', '').split(',');
+        var spritesheetProperties = i.split('.')[1].replace('[', '').replace(']', '').split(',');
         if (spritesheetProperties.length < 2 || spritesheetProperties.length > 5) {
             console.log('Invalid number of Spritesheet properties provided for \'' + i + '\'. Must have between 2 and 5; [frameWidth, frameHeight, frameMax, margin, spacing] frameWidth and frameHeight are required');
         }

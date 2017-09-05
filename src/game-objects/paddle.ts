@@ -13,8 +13,8 @@ export class Paddle extends Phaser.Sprite {
         this.game.add.existing(this);
     }
 
-    private drawPaddle(x: number, y: number, width: number, height: number): PIXI.RenderTexture {
-        let texture: PIXI.RenderTexture;
+    private drawPaddle(x: number, y: number, width: number, height: number): Phaser.RenderTexture {
+        let texture: Phaser.RenderTexture;
         let paddleGraphic = new Phaser.Graphics(this.game, 0, 0);
         paddleGraphic.lineStyle(0, 0xFFFFFF, 1);
         paddleGraphic.beginFill(0xFFFFFF);

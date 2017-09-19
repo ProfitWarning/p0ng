@@ -1,4 +1,4 @@
-import { WinnerBanner } from '../game-objects/winner-banner';
+import { CenterBanner } from '../game-objects/center-banner';
 import * as Assets from '../assets';
 import PongBaseState from './PongBaseState';
 import { PongGameProperties } from '../interfaces/pong-properties';
@@ -20,7 +20,7 @@ export default class Pong extends PongBaseState {
   private _leftPlayer: Player;
   private _rightPlayer: Player;
   private _ballStartEvent: Phaser.TimerEvent;
-  private _winnerBanner: WinnerBanner;
+  private _centerBanner: CenterBanner;
 
 
   private _pongProperties: PongGameProperties = {
@@ -34,7 +34,7 @@ export default class Pong extends PongBaseState {
     ballVelocityIncrease: 50,
     ballVelocityMaxValue: 4,
 
-    winningScore: 1
+    winningScore: 5
   };
 
   private _currrentBallVelocity: number;
@@ -73,9 +73,7 @@ export default class Pong extends PongBaseState {
   }
 
   private startGame(): void {
-    if (this._winnerBanner) {
-      this._winnerBanner.destroy();
-    }
+    this._centerBanner.alpha = 0;
 
     this.game.input.onDown.remove(this.startGame, this);
 
@@ -84,7 +82,7 @@ export default class Pong extends PongBaseState {
 
     this.setPaddlesActive(true);
     this._scoreBoard.resetScores();
-    this._headline.text = 'Ready';
+    this._centerBanner.text = 'Ready';
   }
 
   private setPaddlesActive(enabled: boolean): void {
@@ -100,7 +98,7 @@ export default class Pong extends PongBaseState {
   private resetBall(): void {
     this._ball.resetBall();
 
-    this.game.time.events.add(Phaser.Timer.SECOND * 2, this.startBall, this);
+    this.game.time.events.add(Phaser.Timer.SECOND * 2.8, this.startBall, this);
   }
 
   private startBall(): void {
@@ -115,10 +113,14 @@ export default class Pong extends PongBaseState {
 
   private readySetGo(): void {
     this.resetBall();
-    this.game.time.events.add(Phaser.Timer.SECOND * .80, () => {
-      this._headline.text = 'Set';
-      this.game.time.events.add(Phaser.Timer.SECOND * 1.20, () => {
-        this._headline.text = 'Go';
+    this._centerBanner.alpha = 1;
+    this.game.time.events.add(Phaser.Timer.SECOND * 1.05, () => {
+      this._centerBanner.text = 'Set';
+      this.game.time.events.add(Phaser.Timer.SECOND * 0.95, () => {
+        this._centerBanner.text = 'Go';
+        this.game.time.events.add(Phaser.Timer.SECOND * 0.95, () => {
+          this._centerBanner.alpha = 0;
+        }, this);
       }, this);
     }, this);
   }
@@ -128,6 +130,8 @@ export default class Pong extends PongBaseState {
     this._backgroundTemplateSprite.anchor.setTo(0.5);
 
     this._headline = new Headline(this.game, this.game.world.centerX, 30, 'P0ng');
+    this._centerBanner = new CenterBanner(this.game, this.game.world.centerX + 20, this.game.world.centerY - 135, `test!`);
+    this._centerBanner.alpha = 0;
     this._scoreBoard = new ScoreBoard(this.game, 130, 110);
     this._ball = new Ball(this.game);
 
@@ -193,7 +197,8 @@ export default class Pong extends PongBaseState {
     this.game.time.events.remove(this._ballStartEvent);
     this.startIdleMode();
     // show win annimation
-    this._winnerBanner = new WinnerBanner(this.game, this.game.world.centerX + 20, this.game.world.centerY - 135, `${player.name} won!`);
+    this._centerBanner.text = `${player.name} won!`;
+    this._centerBanner.alpha = 1;
   }
 
   private collideWithPaddle(ball: Ball, paddle: Paddle): void {

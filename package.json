@@ -20,15 +20,6 @@
     "electron:pack:dist": "npm run build:dist && node ./scripts/packageElectronApp.js",
     "checkDepsVersions": "npm-check --skip-unused -u"
   },
-  // "repository": {
-  //   "type": "git",
-  //   "url": "git+https://github.com/rroylance/phaser-npm-webpack-typescript-starter-project.git"
-  // },
-  // "author": "Richard Roylance <https://github.com/rroylance>",
-  // "bugs": {
-  //   "url": "https://github.com/rroylance/phaser-npm-webpack-typescript-starter-project/issues"
-  // },
-  // "homepage": "https://github.com/rroylance/phaser-npm-webpack-typescript-starter-project#readme",
   "devDependencies": {
     "@types/node": "8.0.17",
     "@types/webfontloader": "^1.6.28",

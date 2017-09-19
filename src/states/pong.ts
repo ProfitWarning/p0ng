@@ -130,7 +130,7 @@ export default class Pong extends PongBaseState {
     this._backgroundTemplateSprite.anchor.setTo(0.5);
 
     this._headline = new Headline(this.game, this.game.world.centerX, 30, 'P0ng');
-    this._centerBanner = new CenterBanner(this.game, this.game.world.centerX + 20, this.game.world.centerY - 135, `test!`);
+    this._centerBanner = new CenterBanner(this.game, this.game.world.centerX, this.game.world.centerY - 135, ``);
     this._centerBanner.alpha = 0;
     this._scoreBoard = new ScoreBoard(this.game, 130, 110);
     this._ball = new Ball(this.game);

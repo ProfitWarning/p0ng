@@ -3,4 +3,4 @@ export * from './ball';
 export * from './player';
 export * from './score-board';
 export * from './headline';
-export * from './winner-banner';
+export * from './center-banner';

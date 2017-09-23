@@ -1,3 +1,4 @@
+import { Menu } from '../game-objects/menu';
 import { CenterBanner } from '../game-objects/center-banner';
 import * as Assets from '../assets';
 import PongBaseState from './PongBaseState';
@@ -10,6 +11,7 @@ import { PlayerKeySet } from '../game-objects/player';
 import { Headline } from '../game-objects/headline';
 
 export default class Pong extends PongBaseState {
+  private _menu: Menu;
   private _backgroundTemplateSprite: Phaser.Sprite;
   private _headline: Phaser.Text;
   private sfxAudiosprite: Phaser.AudioSprite;
@@ -34,7 +36,7 @@ export default class Pong extends PongBaseState {
     ballVelocityIncrease: 50,
     ballVelocityMaxValue: 4,
 
-    winningScore: 5
+    winningScore: 2
   };
 
   private _currrentBallVelocity: number;
@@ -63,6 +65,8 @@ export default class Pong extends PongBaseState {
 
   private startIdleMode(): void {
     this._ball.resetBall();
+    this._ball.visible = false;
+    this._menu.visible = true;
     this.setPaddlesActive(false);
     this._ball.body.velocity.setTo(0);
     this._headline.text = 'P0ng';
@@ -73,7 +77,8 @@ export default class Pong extends PongBaseState {
   }
 
   private startGame(): void {
-    this._centerBanner.alpha = 0;
+    this._centerBanner.visible = false;
+    this._menu.visible = false;
 
     this.game.input.onDown.remove(this.startGame, this);
 
@@ -93,17 +98,22 @@ export default class Pong extends PongBaseState {
 
     this._rightPlayer.keyDown.enabled = enabled;
     this._rightPlayer.keyUp.enabled = enabled;
+
+    if (!enabled) {
+      this._paddleGroup.getAll().forEach((paddle: Paddle) => {
+        paddle.resetToStart();
+      });
+    }
   }
 
   private resetBall(): void {
     this._ball.resetBall();
-
     this.game.time.events.add(Phaser.Timer.SECOND * 2.8, this.startBall, this);
   }
 
   private startBall(): void {
-    this._currrentBallVelocity = this._pongProperties.ballVelocity;
     this._ball.visible = true;
+    this._currrentBallVelocity = this._pongProperties.ballVelocity;
     this._ballReturnCount = 0;
 
     // calculate random  angle
@@ -113,13 +123,13 @@ export default class Pong extends PongBaseState {
 
   private readySetGo(): void {
     this.resetBall();
-    this._centerBanner.alpha = 1;
+    this._centerBanner.visible = true;
     this.game.time.events.add(Phaser.Timer.SECOND * 1.05, () => {
       this._centerBanner.text = 'Set';
       this.game.time.events.add(Phaser.Timer.SECOND * 0.95, () => {
         this._centerBanner.text = 'Go';
         this.game.time.events.add(Phaser.Timer.SECOND * 0.95, () => {
-          this._centerBanner.alpha = 0;
+          this._centerBanner.visible = false;
         }, this);
       }, this);
     }, this);
@@ -130,9 +140,14 @@ export default class Pong extends PongBaseState {
     this._backgroundTemplateSprite.anchor.setTo(0.5);
 
     this._headline = new Headline(this.game, this.game.world.centerX, 30, 'P0ng');
-    this._centerBanner = new CenterBanner(this.game, this.game.world.centerX, this.game.world.centerY - 135, ``);
-    this._centerBanner.alpha = 0;
+
+    this._centerBanner = new CenterBanner(this.game, this.game.world.centerX, this.game.world.centerY - 160, ``);
+    this._centerBanner.visible = false;
+
+    this._menu = new Menu(this.game, this.game.world.centerX, this.game.world.centerY - 15, `Click to start`);
+
     this._scoreBoard = new ScoreBoard(this.game, 130, 110);
+
     this._ball = new Ball(this.game);
 
     const paddleLeft = new Paddle(this.game,
@@ -196,9 +211,9 @@ export default class Pong extends PongBaseState {
   private playerWon(player: Player) {
     this.game.time.events.remove(this._ballStartEvent);
     this.startIdleMode();
-    // show win annimation
+
     this._centerBanner.text = `${player.name} won!`;
-    this._centerBanner.alpha = 1;
+    this._centerBanner.visible = true;
   }
 
   private collideWithPaddle(ball: Ball, paddle: Paddle): void {

@@ -1,12 +1,12 @@
 import * as Assets from '../assets';
 
-export class CenterBanner extends Phaser.Text {
+export class Menu extends Phaser.Text {
 
   game: Phaser.Game;
 
   constructor(game: Phaser.Game, x: number, y: number, text: string, style?: Phaser.PhaserTextStyle) {
     const defaultTextStyle = {
-      font: '4.0em ' + Assets.GoogleWebFonts.PressStart2P,
+      font: '3.0em ' + Assets.GoogleWebFonts.PressStart2P,
       fill: '#fff'
     };
     super(game, x, y, '', Object.assign({}, defaultTextStyle, style));

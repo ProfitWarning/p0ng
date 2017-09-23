@@ -13,7 +13,6 @@ export class Ball extends Phaser.Sprite {
 
     public resetBall(): void {
         this.reset(this.game.world.centerX, this.game.world.centerY);
-        this.visible = true;
     }
 
     private drawBall(x?: number, y?: number, r: number = 8): Phaser.RenderTexture {

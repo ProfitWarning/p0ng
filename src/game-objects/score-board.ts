@@ -6,7 +6,7 @@ export class Score extends Phaser.Text {
 
   constructor(game: Phaser.Game, x: number, y: number, style?: Phaser.PhaserTextStyle) {
     const defaultTextStyle = {
-      font: '5em ' + Assets.GoogleWebFonts.PressStart2P,
+      font: '4.5em ' + Assets.GoogleWebFonts.PressStart2P,
       fill: '#ffffff'
     };
     super(game, x, y, '0', Object.assign({}, defaultTextStyle, style));

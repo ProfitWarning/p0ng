@@ -7,9 +7,13 @@ export class Menu {
   border: Phaser.Sprite;
   closeButton: LabelButton;
   isVisible: boolean;
+  x: number;
+  y: number;
 
   constructor(game: Phaser.Game, x: number, y: number, onClose: Function) {
     this.game = game;
+    this.x = x;
+    this.y = y;
     this.closeButton = new LabelButton(game, 0, 80, '-> Click to start <-', onClose);
     this.border = this.drawBorders();
 
@@ -42,7 +46,7 @@ export class Menu {
     g.lineStyle(3, 0xFFFFFF);
     g.drawRoundedRect(0, 0, 370, 220, 4);
     const borderTexture = g.generateTexture();
-    const borders = new Phaser.Sprite(this.game, this.game.world.centerX, this.game.world.centerY - 20, borderTexture);
+    const borders = new Phaser.Sprite(this.game, this.x, this.y, borderTexture);
     borders.anchor.setTo(0.5, 0.5);
 
     g.destroy();

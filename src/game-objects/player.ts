@@ -17,7 +17,7 @@ export default class Player {
     this.game = game;
     this.paddle = paddle;
     this.keySet = keySet;
-    this.name = this.keySet === PlayerKeySet.LeftPlayer ? 'Player one' : 'Player two';
+    this.name = this.keySet === PlayerKeySet.LeftPlayer ? 'Player 1' : 'Player 2';
   }
 
   public initKeyboard(): void {

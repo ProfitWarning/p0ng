@@ -1,4 +1,5 @@
 import * as Assets from '../assets';
+
 export class Headline extends Phaser.Text {
 
   game: Phaser.Game;

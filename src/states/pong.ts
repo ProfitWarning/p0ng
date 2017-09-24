@@ -1,14 +1,14 @@
-import { Menu } from '../game-objects/menu';
-import { CenterBanner } from '../game-objects/center-banner';
 import * as Assets from '../assets';
-import PongBaseState from './PongBaseState';
-import { PongGameProperties } from '../interfaces/pong-properties';
-import { Paddle } from '../game-objects/paddle';
 import { Ball } from '../game-objects/ball';
-import { ScoreBoard, Score } from '../game-objects/score-board';
+import { CenterBanner } from '../game-objects/center-banner';
+import { Headline } from '../game-objects/headline';
+import { Menu } from '../game-objects/menu';
+import { Paddle } from '../game-objects/paddle';
 import Player from '../game-objects/player';
 import { PlayerKeySet } from '../game-objects/player';
-import { Headline } from '../game-objects/headline';
+import { ScoreBoard } from '../game-objects/score-board';
+import { PongGameProperties } from '../interfaces/pong-properties';
+import PongBaseState from './PongBaseState';
 
 export default class Pong extends PongBaseState {
   private _menu: Menu;
@@ -73,7 +73,7 @@ export default class Pong extends PongBaseState {
     this._scoreBoard.resetScores();
 
     // start game via input
-    this.game.input.onDown.add(this.startGame, this);
+    // this.game.input.onDown.add(this.startGame, this);
   }
 
   private startGame(): void {
@@ -141,10 +141,10 @@ export default class Pong extends PongBaseState {
 
     this._headline = new Headline(this.game, this.game.world.centerX, 30, 'P0ng');
 
-    this._centerBanner = new CenterBanner(this.game, this.game.world.centerX, this.game.world.centerY - 160, ``);
+    this._centerBanner = new CenterBanner(this.game, this.game.world.centerX, this.game.world.centerY - 190, ``);
     this._centerBanner.visible = false;
 
-    this._menu = new Menu(this.game, this.game.world.centerX, this.game.world.centerY - 15, `Click to start`);
+    this._menu = new Menu(this.game, this.game.world.centerX, this.game.world.centerY - 15, () => { return this.startGame(); }); // new MenuHeadline(this.game, this.game.world.centerX, this.game.world.centerY - 15, `Click to start`);
 
     this._scoreBoard = new ScoreBoard(this.game, 130, 110);
 

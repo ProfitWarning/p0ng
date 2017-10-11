@@ -36,7 +36,7 @@ export default class Pong extends PongBaseState {
     ballVelocityIncrease: 50,
     ballVelocityMaxValue: 4,
 
-    winningScore: 2
+    winningScore: 3
   };
 
   private _currrentBallVelocity: number;

@@ -6,7 +6,7 @@ A clone of the classic [Pong](https://en.wikipedia.org/wiki/Pong)
 
 ![screenshot](screenshot.PNG)
 
-This game was created with the awsome [Phaser NPM Webpack TypeScript Starter Project](https://github.com/rroylance/phaser-npm-webpack-typescript-starter-project)
+This game was created with the awesome [Phaser NPM Webpack TypeScript Starter Project](https://github.com/rroylance/phaser-npm-webpack-typescript-starter-project)
 
 **Big thank you to them**
 

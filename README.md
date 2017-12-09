@@ -2,7 +2,7 @@
 
 A clone of the classic [Pong](https://en.wikipedia.org/wiki/Pong)
 
-[Play](pong.fastner-it.de)
+[Play](http://pong.fastner-it.de)
 
 ![screenshot](screenshot.PNG)
 
